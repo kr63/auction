@@ -1,4 +1,4 @@
-package com.auction;
+package com.auction.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 @AllArgsConstructor
-class Bid {
-    private BidType bidType;
+public class Bid {
+    private Type type;
     private int volume;
     private float price;
 }
