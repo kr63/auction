@@ -7,6 +7,8 @@ import com.auction.exceptions.AuctionImpossibleException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.NavigableMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +69,39 @@ public class AuctionTest {
         auction.addBid(new Bid(Type.SELL, 10, 10.0f));
         auction.addBid(new Bid(Type.SELL, 10, 20.0f));
         // when & then
-        assertThatExceptionOfType(AuctionImpossibleException.class).isThrownBy(() -> auction.getEquilibrium());
+        assertThatExceptionOfType(AuctionImpossibleException.class).isThrownBy(() -> auction.getPrice());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPossibleVolumeValue() throws NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException {
+
+        // given
+        auction.addBid(new Bid(Type.SELL, 5, 5.0f));
+        auction.addBid(new Bid(Type.SELL, 10, 10.0f));
+        auction.addBid(new Bid(Type.DEMAND, 5, 15.0f));
+        auction.addBid(new Bid(Type.DEMAND, 10, 10.0f));
+        auction.addBid(new Bid(Type.DEMAND, 15, 5.0f));
+        NavigableMap<Float, Integer> sellBids = auction.getSellBids();
+        NavigableMap<Float, Integer> demandBids = auction.getDemandBids();
+
+        // when
+        Method method = Auction.class.getDeclaredMethod("calculatePossibleVolume", NavigableMap.class);
+        method.setAccessible(true);
+        NavigableMap<Float, Integer> sellBidsPossibleVolumes =
+                (NavigableMap<Float, Integer>) method.invoke(auction, sellBids);
+        NavigableMap<Float, Integer> demandBidsPossibleVolumes =
+                (NavigableMap<Float, Integer>) method.invoke(auction, demandBids);
+
+        // then
+        assertThat(sellBidsPossibleVolumes).containsOnlyKeys(5.0f, 10.0f);
+        assertThat(sellBidsPossibleVolumes.get(5.0f)).isEqualTo(5);
+        assertThat(sellBidsPossibleVolumes.get(10.0f)).isEqualTo(15);
+        assertThat(demandBidsPossibleVolumes).containsOnlyKeys(5.0f, 10.0f, 15.0f);
+        assertThat(demandBidsPossibleVolumes.get(5.0f)).isEqualTo(30);
+        assertThat(demandBidsPossibleVolumes.get(10.0f)).isEqualTo(15);
+        assertThat(demandBidsPossibleVolumes.get(15.0f)).isEqualTo(5);
     }
 
 

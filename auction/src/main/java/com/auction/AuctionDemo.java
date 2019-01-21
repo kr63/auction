@@ -14,7 +14,7 @@ public class AuctionDemo {
         auction.addBid(demandBid);
         auction.addBid(sellBid);
         try {
-            System.out.println(auction.getEquilibrium());
+            System.out.println(auction.getPrice());
         } catch (AuctionImpossibleException e) {
             System.out.println("0 n/a");
         }

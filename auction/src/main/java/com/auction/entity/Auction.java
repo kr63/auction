@@ -3,14 +3,13 @@ package com.auction.entity;
 import com.auction.exceptions.AuctionImpossibleException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class Auction {
 
@@ -39,12 +38,24 @@ public class Auction {
         }
     }
 
-    public Float getEquilibrium() throws AuctionImpossibleException {
+    public Float getPrice() throws AuctionImpossibleException {
         Float demandMaxPrice = demandBids.firstKey();
         Float sellMinPrice = sellBids.firstKey();
         if (demandMaxPrice < sellMinPrice) {
             throw new AuctionImpossibleException();
         }
         return -1f;
+    }
+
+    private NavigableMap<Float, Integer> calculatePossibleVolume(NavigableMap<Float, Integer> map) {
+        NavigableMap<Float, Integer> output = new TreeMap<>();
+        Float firstKey = map.firstKey();
+        for (Map.Entry<Float, Integer> entry : map.entrySet()) {
+            Float key = entry.getKey();
+            NavigableMap<Float, Integer> subMap = map.subMap(firstKey, true, key, true);
+            int subMapValuesSum = subMap.values().stream().mapToInt(Integer::intValue).sum();
+            output.put(key, subMapValuesSum);
+        }
+        return output;
     }
 }
