@@ -69,7 +69,7 @@ public class AuctionTest {
         auction.addBid(new Bid(Type.SELL, 10, 10.0f));
         auction.addBid(new Bid(Type.SELL, 10, 20.0f));
         // when & then
-        assertThat(auction.isAuctionPossible()).isEqualTo(false);
+        assertThat(auction.isPossible()).isEqualTo(false);
         assertThatExceptionOfType(AuctionImpossibleException.class).isThrownBy(() -> auction.getMaximumVolume());
     }
 
@@ -122,4 +122,32 @@ public class AuctionTest {
         assertThat(maximumVolume).isEqualTo(15);
         assertThat(minimumPrice).isEqualTo(4.0f);
     }
+
+    @Test
+    public void testEqualQuantity() throws AuctionImpossibleException {
+        // given
+        auction.addBid(new Bid(Type.DEMAND, 1, 10.1f));
+        auction.addBid(new Bid(Type.SELL, 1, 10.1f));
+        // when & then
+        assertThat(auction.isPossible()).isEqualTo(true);
+        assertThat(auction.getMaximumVolume()).isEqualTo(1);
+        assertThat(auction.getMinimumPrice()).isEqualTo(10.1f);
+    }
+
+    @Test
+    public void testCrossDemandAndSellCurve() throws AuctionImpossibleException {
+        auction.addBid(new Bid(Type.DEMAND, 1, 20f));
+        auction.addBid(new Bid(Type.DEMAND, 1, 15f));
+        auction.addBid(new Bid(Type.DEMAND, 1, 10f));
+        auction.addBid(new Bid(Type.DEMAND, 1, 5f));
+        auction.addBid(new Bid(Type.SELL, 1, 5f));
+        auction.addBid(new Bid(Type.SELL, 1, 10f));
+        auction.addBid(new Bid(Type.SELL, 1, 17f));
+        auction.addBid(new Bid(Type.SELL, 1, 22f));
+
+        assertThat(auction.isPossible()).isEqualTo(true);
+        assertThat(auction.getMaximumVolume()).isEqualTo(2);
+        assertThat(auction.getMinimumPrice()).isEqualTo(10f);
+    }
+
 }
