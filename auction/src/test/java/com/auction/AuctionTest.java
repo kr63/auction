@@ -69,7 +69,8 @@ public class AuctionTest {
         auction.addBid(new Bid(Type.SELL, 10, 10.0f));
         auction.addBid(new Bid(Type.SELL, 10, 20.0f));
         // when & then
-        assertThatExceptionOfType(AuctionImpossibleException.class).isThrownBy(() -> auction.getPrice());
+        assertThat(auction.isAuctionPossible()).isEqualTo(false);
+        assertThatExceptionOfType(AuctionImpossibleException.class).isThrownBy(() -> auction.getMaximumVolume());
     }
 
     @Test
@@ -87,7 +88,7 @@ public class AuctionTest {
         NavigableMap<Float, Integer> demandBids = auction.getDemandBids();
 
         // when
-        Method method = Auction.class.getDeclaredMethod("calculatePossibleVolume", NavigableMap.class);
+        Method method = Auction.class.getDeclaredMethod("calculateAbsoluteVolume", NavigableMap.class);
         method.setAccessible(true);
         NavigableMap<Float, Integer> sellBidsPossibleVolumes =
                 (NavigableMap<Float, Integer>) method.invoke(auction, sellBids);
@@ -104,5 +105,21 @@ public class AuctionTest {
         assertThat(demandBidsPossibleVolumes.get(15.0f)).isEqualTo(5);
     }
 
+    @Test
+    public void testMaximumVolume() throws AuctionImpossibleException {
+        // given
+        auction.addBid(new Bid(Type.DEMAND, 5, 15.0f));
+        auction.addBid(new Bid(Type.DEMAND, 5, 10.0f));
+        auction.addBid(new Bid(Type.DEMAND, 5, 5.0f));
+        auction.addBid(new Bid(Type.SELL, 7, 2.0f));
+        auction.addBid(new Bid(Type.SELL, 8, 4.0f));
 
+        // when
+        Integer maximumVolume = auction.getMaximumVolume();
+        Float minimumPrice = auction.getMinimumPrice();
+
+        // then
+        assertThat(maximumVolume).isEqualTo(15);
+        assertThat(minimumPrice).isEqualTo(4.0f);
+    }
 }

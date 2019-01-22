@@ -14,7 +14,7 @@ public class AuctionDemo {
         auction.addBid(demandBid);
         auction.addBid(sellBid);
         try {
-            System.out.println(auction.getPrice());
+            System.out.println(auction.getMaximumVolume());
         } catch (AuctionImpossibleException e) {
             System.out.println("0 n/a");
         }
