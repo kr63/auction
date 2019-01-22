@@ -85,7 +85,7 @@ public class Auction {
             Float key = entry.getKey();
             Integer value = entry.getValue();
             Float otherKey = sellPossibleVolumes.floorKey(key);
-            if (otherKey == null) otherKey = Float.MAX_VALUE;
+            if (otherKey == null) continue;
             Integer otherValue = sellPossibleVolumes.getOrDefault(otherKey, Integer.MAX_VALUE);
 
             Float minKey = Math.min(key, otherKey);

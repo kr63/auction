@@ -150,4 +150,19 @@ public class AuctionTest {
         assertThat(auction.getMinimumPrice()).isEqualTo(10f);
     }
 
+    @Test
+    public void testMinDemandPriceHigherThanMinSellPrice() throws AuctionImpossibleException {
+        auction.addBid(new Bid(Type.DEMAND, 10, 10f));
+        auction.addBid(new Bid(Type.DEMAND, 10, 6f));
+        auction.addBid(new Bid(Type.DEMAND, 10, 5f));
+        auction.addBid(new Bid(Type.DEMAND, 10, 1f));
+        auction.addBid(new Bid(Type.SELL, 10, 2f));
+        auction.addBid(new Bid(Type.SELL, 10, 5f));
+        auction.addBid(new Bid(Type.SELL, 10, 8f));
+        auction.addBid(new Bid(Type.SELL, 10, 10f));
+
+        assertThat(auction.isPossible()).isEqualTo(true);
+        assertThat(auction.getMaximumVolume()).isEqualTo(20);
+        assertThat(auction.getMinimumPrice()).isEqualTo(5f);
+    }
 }
